@@ -1,6 +1,6 @@
 {
   "name": "boomer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Combine connect, watch and live reload configurations",
   "main": "boomer.js",
   "directories": {

@@ -39,9 +39,15 @@ module.exports = function( Grunt, boomerTaskName ){
   // I'm not creating a class for this..
   // just leaking the reference
   grunt = Grunt
-  grunt.loadNpmTasks("grunt-contrib-connect")
-  grunt.loadNpmTasks("grunt-contrib-watch")
-
+  if ( process.cwd() == __dirname ) {
+    grunt.loadNpmTasks("grunt-contrib-connect")
+    grunt.loadNpmTasks("grunt-contrib-watch")
+  }
+  else {
+    // trick grunt!
+    grunt.loadNpmTasks("boomer/node_modules/grunt-contrib-connect")
+    grunt.loadNpmTasks("boomer/node_modules/grunt-contrib-watch")
+  }
 
   grunt.registerMultiTask("lr", "Boomer livereload helper task", function (){
     var changedFiles = this.filesSrc
