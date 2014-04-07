@@ -1,0 +1,23 @@
+{
+  "name": "boomer",
+  "version": "1.0.0",
+  "description": "Combine connect, watch and live reload configurations",
+  "main": "boomer.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Nagy Zoltan <tunderdomb@gmail.com> (tunderdomb)",
+  "license": "MIT",
+  "devDependencies": {
+    "grunt": "~0.4.4"
+  },
+  "dependencies": {
+    "portscanner": "~0.2.2",
+    "grunt-contrib-watch": "~0.6.1",
+    "tiny-lr": "0.0.5",
+    "grunt-contrib-connect": "~0.7.1"
+  }
+}
