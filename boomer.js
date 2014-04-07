@@ -13,7 +13,7 @@ var IP = (function ( ifaces ){
       }
     });
   }
-  return "http://" + (address || "localhost")
+  return (address || "localhost")
 }(require('os').networkInterfaces()))
 
 function reservePorts( n, done, i, start, ports ){
@@ -21,17 +21,12 @@ function reservePorts( n, done, i, start, ports ){
   i = i || 0
   ports = ports || []
   portscanner.findAPortNotInUse(start, PORT_START + MAX_PORTS, IP, function ( err, port ){
-    if ( err ) {
-      reservePorts(n, done, ++i, port+1, ports)
+    ports.push(port)
+    if( !--n ) {
+      done(ports)
     }
     else {
-      ports.push(port)
-      if( !--n ) {
-        done(ports)
-      }
-      else {
-        reservePorts(n, done, ++i, port+1, ports)
-      }
+      reservePorts(n, done, ++i, port+1, ports)
     }
   })
 }
@@ -59,7 +54,7 @@ module.exports = function( Grunt, boomerTaskName ){
     var done = this.async()
     reservePorts(2, function ( ports ){
       var serverRoot = grunt.config.get("connect.boomer.base")
-        , webAddress = IP + ":" + ports[0]
+        , webAddress = "http://" + IP + ":" + ports[0]
 
       grunt.config("connect.boomer.options.port", ports[0])
       grunt.config("connect.boomer.options.open", webAddress)

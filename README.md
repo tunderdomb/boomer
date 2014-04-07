@@ -82,6 +82,15 @@ It's the same as writing this:
   })
 ```
 
+Note: boomer automatically search for an open port.
+That property will be overwritten. Like this:
+
+```js
+grunt.config("connect.boomer.options.port", ports[0])
+grunt.config("connect.boomer.options.open", webAddress)
+grunt.config("connect.boomer.options.livereload", ports[1])
+```
+
 ### .lr(options)
 
 Same as writing this:
@@ -108,8 +117,12 @@ There are two options now:
 
 #### portStart
 
+The port to start searching for open ports.
+
 Defaults to `8000`.
 
 #### maxPorts
+
+Maximum available ports to check after the specified port
 
 Defaults to `30`.
