@@ -92,8 +92,30 @@ boomer.config = function( options ){
 }
 
 boomer.connect = function( options ){
+  options.middleware = function ( connect, options, middlewares ){
+    middleWareStack.forEach(function( src ){
+      try{
+        require(src)(grunt, connect, options, middlewares)
+      }
+      catch( e ){
+        console.warn("Unable to load middlware '%s'", src)
+        console.warn(e)
+      }
+    })
+    return middlewares
+  }
   grunt.config("connect.boomer.options", options)
   return boomer
+}
+
+var middleWareStack = []
+boomer.middleware = function( name ){
+  if ( typeof name == "string" ) {
+    middleWareStack.push(name)
+  }
+  else {
+    middleWareStack = middleWareStack.concat(name)
+  }
 }
 
 boomer.watch = function( options ){

@@ -91,6 +91,29 @@ grunt.config("connect.boomer.options.open", webAddress)
 grunt.config("connect.boomer.options.livereload", ports[1])
 ```
 
+
+### .middlweare(String|String[])
+
+Add a middleware to the load stack.
+Basically let's you add middleware where ever you want.
+Uses the connect task's `middleware` option.
+It will use the string argument to require a module.
+Your modulke should look something like this:
+
+```js
+module.exports = function ( grunt, connect, options, middlewares ){
+  middlewares.unshift(function ( req, res, next ){
+    if ( something ) {
+      // end the request here and respond
+      res.end("hello")
+    }
+    // let the next middleware handle the request
+    else next()
+  })
+}
+```
+
+
 ### .lr(options)
 
 Same as writing this:
