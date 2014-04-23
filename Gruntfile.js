@@ -23,4 +23,7 @@ module.exports = function ( grunt ){
         tasks: ["lr:html"]
       }
     })
+    .started(function( options ){
+      console.log(options)
+    })
 }

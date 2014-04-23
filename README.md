@@ -114,6 +114,21 @@ module.exports = function ( grunt, connect, options, middlewares ){
 ```
 
 
+### .started(callback)
+
+register a function to call when the whole thing is started.
+
+```js
+  boomer
+    .started(function( options ){
+      console.log(options)
+      // { ip: '192.168.0.80',
+      //     host: 'http://192.168.0.80:8004',
+      //     port: 8004,
+      //     livereload: 8005 }
+    })
+```
+
 ### .lr(options)
 
 Same as writing this:

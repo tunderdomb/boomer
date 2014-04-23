@@ -56,33 +56,13 @@ module.exports = function( Grunt, boomerTaskName ){
     }
   })
 
-  grunt.registerTask(boomerTaskName||"default", "Serve files with Boomer!", function (){
-    var done = this.async()
-    reservePorts(2, function ( ports ){
-      var serverRoot = grunt.config.get("connect.boomer.base")
-        , webAddress = "http://" + IP + ":" + ports[0]
-
-      grunt.config("connect.boomer.options.port", ports[0])
-      grunt.config("connect.boomer.options.open", webAddress)
-      grunt.config("connect.boomer.options.livereload", ports[1])
-
-      grunt.event.once("connect.boomer.listening", function (){
-        console.log("Boomer is serving %s on %s", serverRoot, webAddress)
-        // and let watch keep it alive
-        grunt.task.run("watch")
-      })
-
-      // create lr server
-      tinylr.listen(ports[1], function ( err ){
-        console.log('Live reload Server Started')
-        done()
-        // open server
-        grunt.task.run("connect:boomer")
-      })
-    })
-  })
+  boomer.taskName = boomerTaskName
 
   return boomer
+}
+
+boomer.use = function( npmTask ){
+
 }
 
 boomer.config = function( options ){
@@ -105,6 +85,48 @@ boomer.connect = function( options ){
     return middlewares
   }
   grunt.config("connect.boomer.options", options)
+
+  grunt.registerTask(boomer.taskName||"default", "Serve files with Boomer!", function (){
+    var done = this.async()
+    reservePorts(2, function ( ports ){
+      var serverRoot = grunt.config.get("connect.boomer.base")
+        , webAddress = "http://" + IP + ":" + ports[0]
+
+      grunt.config("connect.boomer.options.port", ports[0])
+      grunt.config("connect.boomer.options.open", webAddress)
+      grunt.config("connect.boomer.options.livereload", ports[1])
+
+      grunt.event.once("connect.boomer.listening", function (){
+        console.log("Boomer is serving %s on %s", serverRoot, webAddress)
+        // and let watch keep it alive
+        setTimeout(function(  ){
+          startedCallback({
+            ip: IP,
+            host: webAddress,
+            port: ports[0],
+            livereload: ports[1]
+          })
+        }, 1)
+        grunt.task.run("watch")
+      })
+
+      // create lr server
+      tinylr.listen(ports[1], function ( err ){
+        console.log('Live reload Server Started')
+        done()
+        // open server
+        grunt.task.run("connect:boomer")
+      })
+    })
+  })
+  return boomer
+}
+
+
+boomer.express = function( stuff ){
+  var express = require("express")
+  var app = express()
+  stuff(app)
   return boomer
 }
 
@@ -126,4 +148,9 @@ boomer.watch = function( options ){
 boomer.lr = function( options ){
   grunt.config("lr", options)
   return boomer
+}
+
+var startedCallback = function( options ){}
+boomer.started = function( callback ){
+  startedCallback = callback
 }
