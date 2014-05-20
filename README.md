@@ -3,31 +3,20 @@ Boomer
 
 ## Ok what
 
-This is task configurator for grunt.
-It combines and simplifies connect, watch, and live reload configuration.
+Boomer cuts down on your task configuration.
+It is essentially a wrapper for grunt-contrib-connect and grunt-contrib-watch.
+You can also use an express app on top of it, that gives you a little more flexibility.
 
-I made this because there was no working solution for this already.
+## Show me
 
-I've always wrote task configs for each of these independently, and I got tired of copy pasting.
-
-What it does, is essentially load `grunt-contrib-connect`, `grunt-contrib-watch`,
-and a custom live reload task that let's you refresh your browser whenever a file changes.
-
-This is not a grunt task. This is a task configurator. So don't try to load it with `grunt.loadNpmTasks()`.
-
-## Ok how
-
-Simple.
+Excerpt from the test case.
 
 ```js
-
-var boomer = require("boomer")
+var boomer = require("../boomer")
 
 module.exports = function ( grunt ){
 
-  grunt.initConfig({})
-
-  boomer(grunt, "default")
+  boomer(grunt, "boomer-connect")
     .connect({
       hostname: "*",
       base: "test/"
@@ -46,121 +35,123 @@ module.exports = function ( grunt ){
       }
     })
 }
-
 ```
 
-### What does the lr task do?
+`boomer` is a function, you should call it with a grunt instance
+and an optional task name.
 
-It does this:
+**Note:** by default boomer registers under the "default" grunt task.
 
-```js
-tinylr.changed({body: {files: changedFiles}})
-```
-
-### There are options to do this with connect and watch too.
-
-True. But they handle it badly. Sometimes the files don't reload even if they're changed.
-For instance, if you have an IDE where file changes are written first into a temp location,
-and if that was a success, then saved to the file system. JetBrains does this.
-And the watch task sometimes (too often) ignores these changes.
-
-So I wrote a helper task that you can set up to reload files.
-
-## Methods
-
-### .connect(options)
-
-It's the same as writing this:
+Here's an express example (also from the tests):
 
 ```js
-  grunt.initConfig({
-    connect: {
-      boomer: {
-        options: {<options goes here>}
+var path = require("path")
+
+var boomer = require("../boomer")
+
+var express = require("express")
+var app = express()
+
+module.exports = function ( grunt ){
+
+  boomer(grunt, "boomer-express")
+    .express(app, function(  ){
+      app.use(express.static(path.join(process.cwd(), "test")))
+    })
+    .lr({
+      html: "test/*.html"
+    })
+    .watch({
+      options: {
+        spawn: false,
+        interrupt: true
+      },
+      html: {
+        files: ["test/*.html"],
+        tasks: ["lr:html"]
       }
-    }
-  })
-```
-
-Note: boomer automatically search for an open port.
-That property will be overwritten. Like this:
-
-```js
-grunt.config("connect.boomer.options.port", ports[0])
-grunt.config("connect.boomer.options.open", webAddress)
-grunt.config("connect.boomer.options.livereload", ports[1])
-```
-
-
-### .middlweare(String|String[])
-
-Add a middleware to the load stack.
-Basically let's you add middleware where ever you want.
-Uses the connect task's `middleware` option.
-It will use the string argument to require a module.
-Your modulke should look something like this:
-
-```js
-module.exports = function ( grunt, connect, options, middlewares ){
-  middlewares.unshift(function ( req, res, next ){
-    if ( something ) {
-      // end the request here and respond
-      res.end("hello")
-    }
-    // let the next middleware handle the request
-    else next()
-  })
+    })
 }
 ```
 
+## What is what
 
-### .started(callback)
+### .connect(options)
 
-register a function to call when the whole thing is started.
+#### `options` - Object
+
+Simple: it gets passed to the connect task as follows:
 
 ```js
-  boomer
-    .started(function( options ){
-      console.log(options)
-      // { ip: '192.168.0.80',
-      //     host: 'http://192.168.0.80:8004',
-      //     port: 8004,
-      //     livereload: 8005 }
-    })
+grunt.config("connect.boomer.options", options)
+```
+
+### .express(app, setup)
+
+#### `app` - Function
+
+Like this:
+
+```js
+var app = express()
+```
+
+#### `setup` - Function [Optional]
+
+A function called when the task is run.
+Use it to setup your app here.
+
+**You should slate calling methods like `.use()` on the app,**
+**because boomer dynamically assigns a free port to the server when the task is run.**
+
+**In order for the live reloading to work, your app initialization must come after the live reload script.**
+
+**Use the setup callback to do that.**
+
+### .watch(options)
+
+#### `options` - Object
+
+Gets passed directly to the watch task like this:
+
+```js
+grunt.config("watch", options)
 ```
 
 ### .lr(options)
 
-Same as writing this:
+#### `options` - Object
+
+Boomer registers a helper task called `lr`.
+It posts changed files to the liverelead server so your browser can refresh.
+
+It does this:
 
 ```js
-  grunt.initConfig({
-    lr: {<options goes here>}
-  })
+grunt.config("lr", options)
 ```
 
-### .connect(options)
+Check the source, it's really straightforward.
 
-It's the same as writing this:
+Use it like this:
 
 ```js
-  grunt.initConfig({
-    watch: {<options goes here>}
-  })
+// I want these files posted to the browser
+.lr({
+  html: "test/*.html"
+})
+.watch({
+  options: {
+    spawn: false,
+    interrupt: true
+  },
+  html: {
+    // when these files change
+    files: ["test/*.html"],
+    // call the lr task
+    tasks: ["lr:html"]
+  }
+})
 ```
 
-### .config(options)
-
-There are two options now:
-
-#### portStart
-
-The port to start searching for open ports.
-
-Defaults to `8000`.
-
-#### maxPorts
-
-Maximum available ports to check after the specified port
-
-Defaults to `30`.
+That's it! MIT. Happy coding!
