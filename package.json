@@ -1,6 +1,6 @@
 {
   "name": "boomer",
-  "version": "1.5.4",
+  "version": "1.5.5",
   "description": "Watch+livereload+express|connect in a nice wrapper",
   "main": "boomer.js",
   "directories": {
