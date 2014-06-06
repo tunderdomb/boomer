@@ -115,7 +115,9 @@ Use it to setup your app here.
 Gets passed directly to the watch task like this:
 
 ```js
-grunt.config("watch", options)
+for( var name in options ){
+  grunt.config("watch."+name, options[name])
+}
 ```
 
 ### .lr(options)
@@ -123,12 +125,29 @@ grunt.config("watch", options)
 #### `options` - Object
 
 Boomer registers a helper task called `lr`.
-It posts changed files to the liverelead server so your browser can refresh.
+It has a single boolean option called `refresh`.
+If set to true, only the first file will be posted to the lr server.
+It's useful when you want to monitor files that would always reload the whole page (like .js, .html),
+so only one will be sent.
+```js
+
+.lr({
+  js: {
+    options: {refresh: true},
+    src: "public/script/**/*.js"
+  },
+  img: "public/image/**/*.{jpe?g,png,gif,svg}"
+})
+
+```
+It posts changed files to the livereload server so your browser can refresh.
 
 It does this:
 
 ```js
-grunt.config("lr", options)
+for( var name in options ){
+  grunt.config("lr."+name, options[name])
+}
 ```
 
 Check the source, it's really straightforward.
