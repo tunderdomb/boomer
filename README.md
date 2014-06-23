@@ -150,6 +150,18 @@ for( var name in options ){
 }
 ```
 
+### .started(callback)
+
+#### `callback` - Function(options)
+
+Called when the server is started.
+
+`options.host` The host the server is running on. (Usually your local IP)
+`options.port` The server port.
+`options.livereload` The livereload port.
+
+### Usage
+
 Check the source, it's really straightforward.
 
 Use it like this:
